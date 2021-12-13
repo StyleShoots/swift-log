@@ -1118,12 +1118,29 @@ public struct StreamLogHandler: LogHandler {
                     file: String,
                     function: String,
                     line: UInt) {
+        let icon: String?
+        switch level {
+          case .error:
+            icon = "🛑"
+          case .info:
+            icon = "ℹ️"
+          case .warning:
+            icon = "⚠️"
+          default:
+            icon = nil
+        }
+      
         let prettyMetadata = metadata?.isEmpty ?? true
             ? self.prettyMetadata
             : self.prettify(self.metadata.merging(metadata!, uniquingKeysWith: { _, new in new }))
 
         var stream = self.stream
-        stream.write("\(self.timestamp()) \(level) \(self.label) :\(prettyMetadata.map { " \($0)" } ?? "") [\(source)] \(message)\n")
+      
+        if let icon = icon {
+          stream.write("\(self.timestamp()) \(icon) \(level) \(self.label) :\(prettyMetadata.map { " \($0)" } ?? "") [\(source)] \(message)\n")
+        } else {
+          stream.write("\(self.timestamp()) \(level) \(self.label) :\(prettyMetadata.map { " \($0)" } ?? "") [\(source)] \(message)\n")
+        }
     }
 
     private func prettify(_ metadata: Logger.Metadata) -> String? {
